@@ -11,5 +11,12 @@ debug = ["-DCMAKE_BUILD_TYPE=Debug", "-DDISABLE_PLUGINS_BY_DEFAULT=YES"] + ENABL
 release_clang = ['-DCMAKE_C_COMPILER=/usr/bin/clang', '-DCMAKE_CXX_COMPILER=/usr/bin/clang++'] + release
 debug_clang = ['-DCMAKE_C_COMPILER=/usr/bin/clang', '-DCMAKE_CXX_COMPILER=/usr/bin/clang++'] + debug
 
-DEFAULT = "release"
+ipc23 = (
+    # basic FD build configuration, we just need the conjunctions plugin
+    ["-DCMAKE_BUILD_TYPE=Release", "-DDISABLE_PLUGINS_BY_DEFAULT=YES", "-DPLUGIN_CONJUNCTIONS_ENABLED=True"] +
+    # more CMake/compiler settings
+    ["-Wno-dev", "-DCMAKE_CXX_FLAGS=-Wno-deprecated-declarations -Wno-maybe-uninitialized -flto=auto"]
+)
+
+DEFAULT = "ipc23"
 DEBUG = "debug"
