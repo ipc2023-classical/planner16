@@ -1,0 +1,66 @@
+# Stage 1: Compile the planner
+Bootstrap: docker
+From: fedora:37
+Stage: build
+
+%files
+    .
+
+%post
+    ## Install all necessary dependencies.
+    dnf upgrade -y
+    dnf -y install cmake python3 make g++ boost-devel boost-static
+
+    ## Build the planner
+    ./fast-downward-conjunctions/build.py ipc23
+    strip --strip-all fast-downward-conjunctions/builds/ipc23/bin/{downward,preprocess}
+
+
+# Stage 2: Run the planner
+Bootstrap: docker
+From: fedora:37
+Stage: run
+
+# Copy planner binary and required files from Stage 1.
+%files from build
+    fast-downward-conjunctions/fast-downward.py
+    fast-downward-conjunctions/builds/ipc23/bin/
+    fast-downward-conjunctions/driver
+
+%post
+    ## Install only dependencies for running the planner.
+    dnf upgrade -y
+    dnf -y install python3
+    ## Remove unnecessary files to keep the image small.
+    dnf clean all
+
+
+# The runscript is called whenever the container is used to solve an instance.
+%runscript
+    DOMAINFILE="$1"
+    PROBLEMFILE="$2"
+    PLANFILE="$3"
+
+    /fast-downward-conjunctions/fast-downward.py \
+        --build=ipc23 \
+        --alias=GBFS-SCL \
+        --plan-file "$PLANFILE" \
+        "$DOMAINFILE" \
+        "$PROBLEMFILE"
+
+## Define meta data
+%labels
+Name        SaarlumniPlan-TODO
+Description TODO
+Authors     Maximilian Fickert <fickert@cs.uni-saarland.de>, Daniel Gnad <daniel.gnad@liu.se>
+License     GPL 3
+Tracks      agile, satisficing
+SupportsDerivedPredicates                       TODO
+SupportsUniversallyQuantifiedPreconditions      TODO
+SupportsExistentiallyQuantifiedPreconditions    TODO
+SupportsUniversallyQuantifiedEffects            TODO
+SupportsNegativePreconditions                   TODO
+SupportsEqualityPreconditions                   TODO
+SupportsInequalityPreconditions                 TODO
+SupportsConditionalEffects                      TODO
+SupportsImplyPreconditions                      TODO
