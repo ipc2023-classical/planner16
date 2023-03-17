@@ -4,6 +4,7 @@
 #include "../plugin.h"
 
 #include "lazy_search.h"
+#include "lazy_search_relaxed_subgoals_lookahead.h"
 #include "../novelty_heuristic.h"
 
 #include <iostream>
@@ -106,9 +107,13 @@ SearchStatus IPC18IteratedSearch::step() {
     statistics.inc_generated_ops(current_stats.get_generated_ops());
     statistics.inc_reopened(current_stats.get_reopened());
 
+	// Not pretty, but it does the job.
 	auto current_lazy_search = dynamic_cast<LazySearch *>(current_search);
+	auto current_lazy_rsl_search = dynamic_cast<LazySearchRelaxedSubgoalsLookahead *>(current_search);
 	if (current_lazy_search && current_lazy_search->has_another_phase()) {
 		current_lazy_search->restart_with_next_weight();
+	} else if (current_lazy_rsl_search && current_lazy_rsl_search->has_another_phase()) {
+		current_lazy_rsl_search->restart_with_next_weight();
 	} else {
 		current_search = nullptr;
 		const auto skip_phase = [this]() {
