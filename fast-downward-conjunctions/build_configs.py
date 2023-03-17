@@ -12,8 +12,8 @@ release_clang = ['-DCMAKE_C_COMPILER=/usr/bin/clang', '-DCMAKE_CXX_COMPILER=/usr
 debug_clang = ['-DCMAKE_C_COMPILER=/usr/bin/clang', '-DCMAKE_CXX_COMPILER=/usr/bin/clang++'] + debug
 
 ipc23 = (
-    # basic FD build configuration, we just need the conjunctions plugin
-    ["-DCMAKE_BUILD_TYPE=Release", "-DDISABLE_PLUGINS_BY_DEFAULT=YES", "-DPLUGIN_CONJUNCTIONS_ENABLED=True"] +
+    # basic FD build configuration, we just need the conjunctions and landmarks plugins
+    ["-DCMAKE_BUILD_TYPE=Release", "-DDISABLE_PLUGINS_BY_DEFAULT=YES", "-DPLUGIN_CONJUNCTIONS_ENABLED=True", "-DPLUGIN_LANDMARKS_ENABLED=True", "-DUSE_LP=NO"] +
     # more CMake/compiler settings
     ["-Wno-dev", "-DCMAKE_CXX_FLAGS=-Wno-deprecated-declarations -Wno-maybe-uninitialized -flto=auto"]
 )
