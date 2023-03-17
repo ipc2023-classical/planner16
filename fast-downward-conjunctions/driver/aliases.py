@@ -26,23 +26,7 @@ ALIASES['GBFS-SCL'] = _HCFF_UNIT_COST_DEFINITIONS + [
     '--search', 'lazy_greedy_rsl(hcff, preferred=[hcff], conjunctions_heuristic=hcff, novelty=hn, cost_type=1, subgoal_aggregation_method=COUNT, path_dependent_subgoals=true, lookahead_weight=1)'
 ]
 
-ALIASES['GBFS-SCL-SAT1'] = _HCFF_UNIT_COST_DEFINITIONS + [
-    '--if-unit-cost',
-    '--search', 'ipc18_iterated([{}])'.format(
-        'lazy_iterated_weights_rsl(hcff, preferred=[hcff], conjunctions_heuristic=hcff, novelty=hn, subgoal_aggregation_method=COUNT, path_dependent_subgoals=true, lookahead_weight=1)',
-    ),
-    '--if-non-unit-cost',
-    '--heuristic', 'hcff_normalcost=cff(seed=42, cache_estimates=false, cost_type=PLUSONE)',
-    '--heuristic', 'hn_normalcost=novelty(cache_estimates=false)',
-    '--heuristic', 'tmp_normalcost=novelty_linker(hcff_normalcost, [hn_normalcost])',
-    '--search', 'ipc18_iterated([{}, {}], delete_after_phase_heuristics=[hcff, hn, tmp], delete_after_phase_phases=[0, 0, 0])'.format(
-        'lazy_greedy_rsl(hcff, preferred=[hcff], conjunctions_heuristic=hcff, novelty=hn, cost_type=1, subgoal_aggregation_method=COUNT, path_dependent_subgoals=true, lookahead_weight=1)',
-        'lazy_iterated_weights_rsl(hcff_normalcost, preferred=[hcff_normalcost], conjunctions_heuristic=hcff_normalcost, novelty=hn_normalcost, subgoal_aggregation_method=COUNT, path_dependent_subgoals=true, lookahead_weight=1)'
-    ),
-    '--always'
-]
-
-ALIASES['GBFS-SCL-SAT2'] = _HCFF_UNIT_COST_DEFINITIONS + [
+ALIASES['GBFS-SCL-SAT'] = _HCFF_UNIT_COST_DEFINITIONS + [
     '--heuristic', 'hlm_normalcost=lmcount(lm_rhw(reasonable_orders=true))',
     '--if-unit-cost',
     '--search', 'ipc18_iterated([{}, {}], delete_after_phase_heuristics=[hn], delete_after_phase_phases=[0])'.format(
