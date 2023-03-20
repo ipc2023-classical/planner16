@@ -26,6 +26,36 @@ ALIASES['GBFS-SCL'] = _HCFF_UNIT_COST_DEFINITIONS + [
     '--search', 'lazy_greedy_rsl(hcff, preferred=[hcff], conjunctions_heuristic=hcff, novelty=hn, cost_type=1, subgoal_aggregation_method=COUNT, path_dependent_subgoals=true, lookahead_weight=1)'
 ]
 
+ALIASES['LAMA-hCFF'] =  [
+    '--heuristic', 'hlm_normalcost=lmcount(lm_rhw(reasonable_orders=true))',
+    '--heuristic', 'hcff_normalcost=cff(seed=42, cache_estimates=false, cost_type=PLUSONE)',
+    '--heuristic', 'hn_normalcost=novelty(cache_estimates=false)',
+    '--heuristic', 'tmp_normalcost=novelty_linker(hcff_normalcost, [hn_normalcost])',
+    '--search', 'ipc18_iterated([{}])'.format(
+        'lazy_iterated_weights_c([hcff_normalcost, hlm_normalcost], preferred=[hcff_normalcost], conjunctions_heuristic=hcff_normalcost, strategy=maintain_fixed_size_probabilistic(generate_initially=true, initial_removal_mode=UNTIL_BOUND, base_probability=0.02, target_growth_ratio=1.50))'
+    )
+]
+
+_HFF_UNIT_COST_DEFINITIONS = [
+    '--heuristic', 'hff=ff(cache_estimates=false, cost_type=1)'
+]
+
+ALIASES['Discount-GBFS-SCL'] = _HFF_UNIT_COST_DEFINITIONS + [
+    '--search', 'lazy_greedy_rsl_rainbow(hff, preferred=[hff], relaxed_plan_heuristic=hff, cost_type=1, subgoal_aggregation_method=COUNT, path_dependent_subgoals=true, lookahead_weight=1)'
+]
+
+ALIASES['YAHSP'] = _HFF_UNIT_COST_DEFINITIONS + [
+    '--search', 'lazy_greedy_yahsp_rainbow(hff, preferred=hff, relaxed_plan_heuristic=hff, cost_type=1)'
+]
+
+ALIASES['LAMA-hFF'] =  [
+    '--heuristic', 'hlm_normalcost=lmcount(lm_rhw(reasonable_orders=true))',
+    '--heuristic', 'hff_normalcost=ff(cache_estimates=false, cost_type=PLUSONE)',
+    '--search', 'ipc18_iterated([{}])'.format(
+        'lazy_iterated_weights_c([hff_normalcost, hlm_normalcost], preferred=[hff_normalcost], cached_heuristic=hff_normalcost)'
+    )
+]
+
 ALIASES['GBFS-SCL-SAT'] = _HCFF_UNIT_COST_DEFINITIONS + [
     '--heuristic', 'hlm_normalcost=lmcount(lm_rhw(reasonable_orders=true))',
     '--if-unit-cost',
@@ -37,7 +67,6 @@ ALIASES['GBFS-SCL-SAT'] = _HCFF_UNIT_COST_DEFINITIONS + [
     '--heuristic', 'hcff_normalcost=cff(seed=42, cache_estimates=false, cost_type=PLUSONE)',
     '--heuristic', 'hn_normalcost=novelty(cache_estimates=false)',
     '--heuristic', 'tmp_normalcost=novelty_linker(hcff_normalcost, [hn_normalcost])',
-    '--heuristic', 'hlm_normalcost=lmcount(lm_rhw(reasonable_orders=true))',
     '--search', 'ipc18_iterated([{}, {}, {}], delete_after_phase_heuristics=[hcff, hn, tmp, hn_normalcost], delete_after_phase_phases=[0, 0, 0, 1])'.format(
         'lazy_greedy_rsl(hcff, preferred=[hcff], conjunctions_heuristic=hcff, novelty=hn, cost_type=1, subgoal_aggregation_method=COUNT, path_dependent_subgoals=true, lookahead_weight=1)',
         'lazy_greedy_rsl(hcff_normalcost, preferred=[hcff_normalcost], conjunctions_heuristic=hcff_normalcost, novelty=hn_normalcost, subgoal_aggregation_method=COUNT, path_dependent_subgoals=true, lookahead_weight=1)',
