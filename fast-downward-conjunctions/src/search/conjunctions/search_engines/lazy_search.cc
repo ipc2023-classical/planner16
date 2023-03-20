@@ -22,11 +22,14 @@ LazySearch::LazySearch(const options::Options &opts) :
 	current_g(0),
 	current_real_g(0),
 	current_eval_context(current_state, 0, true, &statistics),
-	conjunctions_heuristic(static_cast<ConjunctionsHeuristic *>(opts.get<Heuristic *>("conjunctions_heuristic"))),
+	conjunctions_heuristic(opts.contains("conjunctions_heuristic") ? static_cast<ConjunctionsHeuristic *>(opts.get<Heuristic *>("conjunctions_heuristic")) : nullptr),
+	cached_heuristic(conjunctions_heuristic ? conjunctions_heuristic : opts.get<Heuristic *>("cached_heuristic")),
 	strategy(opts.get<std::shared_ptr<ConjunctionGenerationStrategy>>("strategy")),
 	solved(false),
 	enable_heuristic_cache(opts.get<bool>("enable_heuristic_cache")),
-	heuristic_cache() {}
+	heuristic_cache() {
+		assert(!enable_heuristic_cache || cached_heuristic);
+	}
 
 void LazySearch::set_pref_operator_heuristics(std::vector<Heuristic *> &heur) {
 	preferred_operator_heuristics = heur;
@@ -105,16 +108,18 @@ void LazySearch::initialize() {
 	for (auto heuristic : heuristics)
 		heuristic->notify_initial_state(initial_state);
 
-	solved |= (generate_conjunctions(*conjunctions_heuristic, ConjunctionGenerationStrategy::Event::INITIALIZATION, current_eval_context, true, bound) == ConjunctionGenerationStrategy::Result::SOLVED
-		&& conjunctions_heuristic->get_last_bsg().get_real_cost() <= bound);
-	conjunctions_heuristic->print_statistics();
-	print_intermediate_statistics(*conjunctions_heuristic);
+	if (conjunctions_heuristic) {
+		solved |= (generate_conjunctions(*conjunctions_heuristic, ConjunctionGenerationStrategy::Event::INITIALIZATION, current_eval_context, true, bound) == ConjunctionGenerationStrategy::Result::SOLVED
+			&& conjunctions_heuristic->get_last_bsg().get_real_cost() <= bound);
+		conjunctions_heuristic->print_statistics();
+		print_intermediate_statistics(*conjunctions_heuristic);
+	}
 
 	std::cout << "Finished initialization, t = " << initialization_timer << std::endl;
 
 	start_search_timer();
 
-	if (!conjunctions_heuristic->is_last_bsg_valid_for_state(current_eval_context.get_state()))
+	if (conjunctions_heuristic && !conjunctions_heuristic->is_last_bsg_valid_for_state(current_eval_context.get_state()))
 		current_eval_context = EvaluationContext(current_eval_context.get_state(), 0, true, &statistics);
 }
 
@@ -256,7 +261,8 @@ SearchStatus LazySearch::step() {
 
 		if (current_predecessor_id == StateID::no_state)
 			print_initial_h_values(current_eval_context);
-		check_timer_and_print_intermediate_statistics(*conjunctions_heuristic);
+		if (conjunctions_heuristic)
+			check_timer_and_print_intermediate_statistics(*conjunctions_heuristic);
 
 		statistics.inc_evaluated_states();
 		if (!open_list->is_dead_end(current_eval_context)) {
@@ -271,9 +277,9 @@ SearchStatus LazySearch::step() {
 				node.open(parent_node, current_operator);
 			}
 			assert(current_real_g == node.get_real_g());
-			assert(conjunctions_heuristic->is_last_bsg_valid_for_state(current_state) || enable_heuristic_cache);
+			assert(!conjunctions_heuristic || conjunctions_heuristic->is_last_bsg_valid_for_state(current_state) || enable_heuristic_cache);
 
-			if (conjunctions_heuristic->is_last_bsg_valid_for_state(current_state)) {
+			if (conjunctions_heuristic && conjunctions_heuristic->is_last_bsg_valid_for_state(current_state)) {
 				if (check_relaxed_plans
 					&& is_valid_plan_in_the_original_task(conjunctions_heuristic->get_last_bsg(), current_state.get_values(), *g_root_task())
 					&& current_real_g + conjunctions_heuristic->get_last_bsg().get_real_cost() <= bound) {
@@ -325,7 +331,7 @@ void LazySearch::update_eval_context(EvaluationContext &eval_context, const decl
 	});
 	eval_result.set_preferred_operators(std::move(preferred_operators));
 	eval_result.set_count_evaluation(false);
-	const_cast<HeuristicCache &>(eval_context.get_cache())[conjunctions_heuristic] = std::move(eval_result);
+	const_cast<HeuristicCache &>(eval_context.get_cache())[cached_heuristic] = std::move(eval_result);
 }
 
 auto LazySearch::evaluate_if_neccessary(EvaluationContext &eval_context) -> int {
@@ -333,7 +339,7 @@ auto LazySearch::evaluate_if_neccessary(EvaluationContext &eval_context) -> int 
 	const auto heuristic_cache_it = enable_heuristic_cache ? heuristic_cache.find(state.get_id()) : std::end(heuristic_cache);
 	const auto do_evaluate = !enable_heuristic_cache || heuristic_cache_it == std::end(heuristic_cache);
 	if (do_evaluate) {
-		const auto &result = eval_context.get_result(conjunctions_heuristic);
+		const auto &result = eval_context.get_result(cached_heuristic);
 		if (enable_heuristic_cache && !result.is_infinite()) {
 			const auto &preferred_operators = result.get_preferred_operators();
 			auto preferred_operators_indices = std::vector<int>();
@@ -366,7 +372,8 @@ void LazySearch::print_checkpoint_line(int g) const {
 
 void LazySearch::print_statistics() const {
 	statistics.print_detailed_statistics();
-	print_intermediate_statistics(*conjunctions_heuristic);
+	if (conjunctions_heuristic)
+		print_intermediate_statistics(*conjunctions_heuristic);
 	search_space.print_statistics();
 }
 
@@ -565,8 +572,9 @@ static SearchEngine *_parse_iterated_weights(options::OptionParser &parser) {
 	parser.add_option<bool>("repeat_last", "after going through all weights, repeat with the last one", "true");
 	_add_succ_order_options(parser);
 	SearchEngine::add_options_to_parser(parser);
-	parser.add_option<Heuristic *>("conjunctions_heuristic", "conjunctions heuristic");
-	parser.add_option<bool>("enable_heuristic_cache", "cache heuristic values of the conjunctions heuristic", "true");
+	parser.add_option<Heuristic *>("conjunctions_heuristic", "conjunctions heuristic", options::OptionParser::NONE);
+	parser.add_option<Heuristic *>("cached_heuristic", "cached heuristic, only considered if no conjunctions heuristic is given", options::OptionParser::NONE);
+	parser.add_option<bool>("enable_heuristic_cache", "cache heuristic values of the conjunctions heuristic or cached heuristic", "true");
 	OnlineLearningSearchEngine::add_options_to_parser(parser);
 	options::Options opts = parser.parse();
 

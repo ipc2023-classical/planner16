@@ -37,6 +37,7 @@ protected:
 	EvaluationContext current_eval_context;
 
 	ConjunctionsHeuristic *conjunctions_heuristic;
+	Heuristic * const cached_heuristic;
 	const std::shared_ptr<ConjunctionGenerationStrategy> strategy;
 
 	bool solved;
