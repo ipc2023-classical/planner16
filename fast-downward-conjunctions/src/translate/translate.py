@@ -48,6 +48,9 @@ DEBUG = False
 TRANSLATE_OUT_OF_MEMORY = 20
 TRANSLATE_OUT_OF_TIME = 21
 
+TRANSLATE_SUCCESS_TASK_HAS_AXIOMS = 42
+TRANSLATE_SUCCESS_TASK_HAS_CONDITIONAL_EFFECTS = 43
+
 simplified_effect_condition_counter = 0
 added_implied_precondition_counter = 0
 
@@ -702,6 +705,12 @@ def main():
         with open(options.sas_file, "w") as output_file:
             sas_task.output(output_file)
     print("Done! %s" % timer)
+
+    if len(sas_task.axioms) > 0:
+        sys.exit(TRANSLATE_SUCCESS_TASK_HAS_AXIOMS)
+
+    if any(len(cond) > 0 for op in sas_task.operators for _, _, _, cond in op.pre_post):
+        sys.exit(TRANSLATE_SUCCESS_TASK_HAS_CONDITIONAL_EFFECTS)
 
 
 def handle_sigxcpu(signum, stackframe):
