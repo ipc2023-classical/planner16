@@ -81,8 +81,10 @@ def run_translate(args):
     if do_print_on_stderr and stderr:
         returncodes.print_stderr(stderr)
 
-    if returncode == 0:
-        return (0, True)
+    if returncode in (0,
+                      returncodes.TRANSLATE_SUCCESS_TASK_HAS_AXIOMS,
+                      returncodes.TRANSLATE_SUCCESS_TASK_HAS_CONDITIONAL_EFFECTS):
+        return (returncode, True)
     elif returncode == 1:
         # Unlikely case that the translator crashed without raising an
         # exception.
