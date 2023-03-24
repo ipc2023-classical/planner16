@@ -89,7 +89,9 @@ Stage: run
     pypy3 /plan.py \
         --overall-memory-limit 8000M \
         --overall-time-limit 5m \
-        --alias seq-agl-saarlumniplan3 \
+        --transform-task /fast-downward-decoupled/builds/release64/bin/preprocess-h2 \
+        --transform-task-options h2_time_limit,1 \
+        --alias seq-agl-ipc23-2 \
         --plan-file "$PLANFILE" \
         "$DOMAINFILE" "$PROBLEMFILE"
 

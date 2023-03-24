@@ -88,10 +88,8 @@ Stage: run
 
     pypy3 /plan.py \
         --overall-memory-limit 8000M \
-        --overall-time-limit 30m \
-        --transform-task /fast-downward-decoupled/builds/release64/bin/preprocess-h2 \
-        --transform-task-options h2_time_limit,180 \
-        --alias seq-sat-saarlumniplan \
+        --overall-time-limit 5m \
+        --alias seq-agl-ipc23-3 \
         --plan-file "$PLANFILE" \
         "$DOMAINFILE" "$PROBLEMFILE"
 
@@ -101,7 +99,7 @@ Name        SaarlumniPlan-TODO
 Description Satisficing planner based on conjunctions and decoupled search.
 Authors     Maximilian Fickert <fickert@cs.uni-saarland.de>, Daniel Gnad <daniel.gnad@liu.se>
 License     GPL 3
-Tracks      satisficing
+Tracks      agile
 SupportsDerivedPredicates                       yes
 SupportsUniversallyQuantifiedPreconditions      yes
 SupportsExistentiallyQuantifiedPreconditions    yes
