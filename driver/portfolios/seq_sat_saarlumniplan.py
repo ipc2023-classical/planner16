@@ -41,8 +41,6 @@ CONFIGS_STRIPS =  [
         'fast-downward-conjunctions',
         '--heuristic', 'hlm_normalcost=lmcount(lm_rhw(reasonable_orders=true))',
         '--heuristic', 'hcff_normalcost=cff(seed=42, cache_estimates=false, cost_type=PLUSONE)',
-        '--heuristic', 'hn_normalcost=novelty(cache_estimates=false)',
-        '--heuristic', 'tmp_normalcost=novelty_linker(hcff_normalcost, [hn_normalcost])',
         '--search', 'ipc18_iterated([{}])'.format(
             'lazy_iterated_weights_c([hcff_normalcost, hlm_normalcost], preferred=[hcff_normalcost], conjunctions_heuristic=hcff_normalcost, strategy=maintain_fixed_size_probabilistic(generate_initially=true, base_probability=0.02, target_growth_ratio=1.50), bound=BOUND)'
         )
