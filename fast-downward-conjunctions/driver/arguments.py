@@ -446,7 +446,7 @@ def parse_args():
         if args.debug:
             args.build = "debug"
         else:
-            args.build = "release"
+            args.build = "ipc23"
 
     _split_planner_args(parser, args)
 
