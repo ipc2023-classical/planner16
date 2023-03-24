@@ -89,8 +89,10 @@ def run_translate(args):
     if do_print_on_stderr and stderr:
         returncodes.print_stderr(stderr)
 
-    if returncode == 0:
-        return (0, True)
+    if returncode in (0,
+                      returncodes.TRANSLATE_SUCCESS_TASK_HAS_AXIOMS,
+                      returncodes.TRANSLATE_SUCCESS_TASK_HAS_CONDITIONAL_EFFECTS):
+        return (returncode, True)
     elif returncode == 1:
         # Unlikely case that the translator crashed without raising an
         # exception.
@@ -136,7 +138,7 @@ def transform_task(args):
         return (0, True)
 
 
-def run_search(args):
+def run_search(args, translate_exitcode):
     logging.info("Running search (%s)." % args.build)
     time_limit = limits.get_time_limit(
         args.search_time_limit, args.overall_time_limit)
@@ -155,7 +157,7 @@ def run_search(args):
         logging.info("search portfolio: %s" % args.portfolio)
         return portfolio_runner.run(
             args.portfolio, executable, args.search_input, plan_manager,
-            time_limit, memory_limit)
+            time_limit, memory_limit, translate_exitcode)
     else:
         if not args.search_options:
             returncodes.exit_with_driver_input_error(

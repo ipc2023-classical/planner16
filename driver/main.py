@@ -6,6 +6,7 @@ from . import aliases
 from . import arguments
 from . import cleanup
 from . import limits
+from . import returncodes
 from . import run_components
 from . import util
 from . import __version__
@@ -37,11 +38,12 @@ def main():
     for component in args.components:
         if component == "translate":
             (exitcode, continue_execution) = run_components.run_translate(args)
-            if continue_execution and args.transform_task:
+            translate_exitcode = exitcode
+            if continue_execution and translate_exitcode != returncodes.TRANSLATE_SUCCESS_TASK_HAS_AXIOMS and args.transform_task:
                 print()
                 (exitcode, continue_execution) = run_components.transform_task(args)
         elif component == "search":
-            (exitcode, continue_execution) = run_components.run_search(args)
+            (exitcode, continue_execution) = run_components.run_search(args, translate_exitcode)
             if not args.keep_sas_file:
                 print("Remove intermediate file {}".format(args.sas_file))
                 os.remove(args.sas_file)

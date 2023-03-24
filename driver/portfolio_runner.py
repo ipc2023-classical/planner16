@@ -194,14 +194,14 @@ def get_portfolio_attributes(portfolio):
                 "The portfolio %s could not be loaded. Maybe it still "
                 "uses the old portfolio syntax? See the FDSS portfolios "
                 "for examples using the new syntax." % portfolio)
-    if "CONFIGS" not in attributes:
-        returncodes.exit_with_driver_critical_error("portfolios must define CONFIGS")
+    if "CONFIGS" not in attributes and not ("CONFIGS_STRIPS" in attributes and "CONFIGS_ADL" in attributes):
+        returncodes.exit_with_driver_critical_error("portfolios must define CONFIGS or both CONFIGS_STRIPS and CONFIGS_ADL")
     if "OPTIMAL" not in attributes:
         returncodes.exit_with_driver_critical_error("portfolios must define OPTIMAL")
     return attributes
 
 
-def run(portfolio, executable, sas_file, plan_manager, time, memory):
+def run(portfolio, executable, sas_file, plan_manager, time, memory, translate_exitcode):
     """
     Run the configs in the given portfolio file.
 
@@ -209,7 +209,11 @@ def run(portfolio, executable, sas_file, plan_manager, time, memory):
     use a maximum of *memory* bytes.
     """
     attributes = get_portfolio_attributes(portfolio)
-    configs = attributes["CONFIGS"]
+    configs = attributes.get("CONFIGS", attributes["CONFIGS_STRIPS"] if translate_exitcode == 0 else attributes["CONFIGS_ADL"])
+    if configs is None:
+        configs_strips = attributes["CONFIGS_STRIPS"]
+        configs_adl = attributes["CONFIGS_ADL"]
+        configs = configs_strips if translate_exitcode == 0 else configs_adl
     optimal = attributes["OPTIMAL"]
     final_config = attributes.get("FINAL_CONFIG")
     final_config_builder = attributes.get("FINAL_CONFIG_BUILDER")
