@@ -75,6 +75,16 @@ ALIASES['GBFS-SCL-SAT'] = _HCFF_UNIT_COST_DEFINITIONS + [
     '--always'
 ]
 
+ALIASES['Saarlumni-ADL'] = _HFF_UNIT_COST_DEFINITIONS + [
+    '--heuristic', 'hlm_normalcost=lmcount(lm_rhw(reasonable_orders=true))',
+    '--heuristic', 'hff_normalcost=ff(cache_estimates=false, cost_type=PLUSONE)',
+    '--search', 'ipc18_iterated([{}, {}, {}], delete_after_phase_heuristics=[hff], delete_after_phase_phases=[1], skip_if_solved=[1], continue_on_fail=true)'.format(
+        'lazy_greedy_rsl_rainbow(hff, preferred=[hff], relaxed_plan_heuristic=hff, cost_type=1, subgoal_aggregation_method=COUNT, path_dependent_subgoals=true, lookahead_weight=1, max_time=10)',
+        'lazy_greedy_yahsp_rainbow(hff, preferred=hff, relaxed_plan_heuristic=hff, cost_type=1, max_time=60)',
+        'lazy_iterated_weights_c([hff_normalcost, hlm_normalcost], preferred=[hff_normalcost], cached_heuristic=hff_normalcost)'
+    )
+]
+
 ALIASES["seq-sat-fd-autotune-1"] = [
     "--heuristic", "hff=ff(transform=adapt_costs(one))",
     "--heuristic", "hcea=cea()",
