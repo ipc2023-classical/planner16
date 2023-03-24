@@ -49,8 +49,8 @@ CONFIGS_STRIPS =  [
     ]),
 ]
 
-_GBFS_SCL_TIMEOUT = 60
-_YAHSP_TIMEOUT = 60
+_GBFS_SCL_TIMEOUT = 720
+_YAHSP_TIMEOUT = 480
 
 CONFIGS_ADL = [
     'fast-downward-conjunctions',
@@ -66,5 +66,3 @@ CONFIGS_ADL = [
         'lazy_iterated_weights_c([hff_normalcost, hlm_normalcost], preferred=[hff_normalcost], cached_heuristic=hff_normalcost)'
     )
 ]
-
-
