@@ -1,0 +1,111 @@
+# Stage 1: Compile the planner
+Bootstrap: docker
+From: fedora:37
+Stage: build
+
+%files
+    .
+    $IPC_THIRD_PARTY/cplex_studio2211.linux_x86_64.bin cplex.bin
+
+%post
+    ## Install all necessary dependencies.
+    dnf upgrade -y
+    dnf -y install cmake make g++ boost-devel boost-static pypy3 java-17-openjdk-headless zlib-devel
+
+    ## Clear local build directories.
+    rm -rf /fast-downward-conjunctions/builds
+    rm -rf /fast-downward-decoupled/builds
+
+    ## Build CPLEX
+    ./cplex.bin -DLICENSE_ACCEPTED=TRUE -i silent
+
+    export DOWNWARD_CPLEX_ROOT=/opt/ibm/ILOG/CPLEX_Studio2211/cplex/
+    export DOWNWARD_CPLEX_CONCERT64=/opt/ibm/ILOG/CPLEX_Studio2211/concert/
+
+    ##Build OSI
+    cd fast-downward-decoupled/third-party/Osi-0.108.6
+    export DOWNWARD_COIN_ROOT=/opt/coin/
+
+    ./configure CC="gcc"  CFLAGS="-pthread -Wno-long-long" \
+            CXX="g++" CXXFLAGS="-pthread -Wno-long-long" \
+            LDFLAGS="-L$DOWNWARD_CPLEX_ROOT/lib/x86-64_linux/static_pic" \
+            --without-lapack --enable-static=yes \
+            --prefix="$DOWNWARD_COIN_ROOT" \
+            --disable-bzlib  \
+            --with-cplex-incdir=$DOWNWARD_CPLEX_ROOT/include/ilcplex \
+            --with-cplex-lib="-lcplex -lm -ldl"
+
+    make
+    make install
+
+    cd ../../..
+
+    ## Build the planners
+    pypy3 fast-downward-conjunctions/build.py ipc23
+    pypy3 fast-downward-decoupled/build.py release64
+
+    strip --strip-all fast-downward-conjunctions/builds/ipc23/bin/{downward,preprocess}
+    strip --strip-all fast-downward-decoupled/builds/release64/bin/{downward,preprocess-h2}
+
+
+# Stage 2: Run the planner
+Bootstrap: docker
+From: fedora:37
+Stage: run
+
+%files
+    dispatch.py /dispatch.py
+    plan.py /plan.py
+    driver /driver
+
+# Copy planner binary and required files from Stage 1.
+%files from build
+    fast-downward-conjunctions/fast-downward.py
+    fast-downward-conjunctions/builds/ipc23/bin/
+    fast-downward-conjunctions/driver
+    fast-downward-conjunctions/src/translate
+
+    fast-downward-decoupled/fast-downward.py
+    fast-downward-decoupled/driver
+    fast-downward-decoupled/builds/release64/bin/
+    /opt/ibm/ILOG/CPLEX_Studio2211/cplex/
+    /opt/ibm/ILOG/CPLEX_Studio2211/concert/
+    /opt/coin/
+
+%post
+    ## Install only dependencies for running the planner.
+    dnf upgrade -y
+    dnf -y install pypy3
+    ## Remove unnecessary files to keep the image small.
+    dnf clean all
+
+
+# The runscript is called whenever the container is used to solve an instance.
+%runscript
+    DOMAINFILE="$1"
+    PROBLEMFILE="$2"
+    PLANFILE="$3"
+
+    pypy3 /plan.py \
+        --overall-memory-limit 8000M \
+        --overall-time-limit 5m \
+        --alias seq-agl-saarlumniplan1 \
+        --plan-file "$PLANFILE" \
+        "$DOMAINFILE" "$PROBLEMFILE"
+
+## Define meta data
+%labels
+Name        SaarlumniPlan-TODO
+Description Satisficing planner based on conjunctions and decoupled search.
+Authors     Maximilian Fickert <fickert@cs.uni-saarland.de>, Daniel Gnad <daniel.gnad@liu.se>
+License     GPL 3
+Tracks      agile
+SupportsDerivedPredicates                       yes
+SupportsUniversallyQuantifiedPreconditions      yes
+SupportsExistentiallyQuantifiedPreconditions    yes
+SupportsUniversallyQuantifiedEffects            yes
+SupportsNegativePreconditions                   yes
+SupportsEqualityPreconditions                   yes
+SupportsInequalityPreconditions                 yes
+SupportsConditionalEffects                      yes
+SupportsImplyPreconditions                      yes
