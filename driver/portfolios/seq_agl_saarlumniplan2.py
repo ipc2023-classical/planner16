@@ -7,13 +7,13 @@ _HCFF_UNIT_COST_DEFINITIONS = [
     '--heuristic', 'tmp=novelty_linker(hcff, [hn])'
 ]
 
-CONFIGS_STRIPS =  [ # TODO runtimes
+CONFIGS_STRIPS =  [
     # RHC-SC (hCFF)
-    ((10,10), ['fast-downward-conjunctions'] + _HCFF_UNIT_COST_DEFINITIONS + [
+    (10, ['fast-downward-conjunctions'] + _HCFF_UNIT_COST_DEFINITIONS + [
        '--search', 'ehc_cnsg(hcff, novelty=hn, cost_type=1, always_reevaluate=true, subgoal_aggregation_method=COUNT, path_dependent_subgoals=true, w=1, seed=-1, restart_in_dead_ends=true, learning_stagnation_threshold=1)'
     ]),
     # decoupled search: inverted-fork factorings
-    ((0, 10), ['fast-downward-decoupled', "--decoupling",
+    (10, ['fast-downward-decoupled', "--decoupling",
            "ifork(search_type=sat, max_leaf_size=100000)",
            "--heuristic",
            "hff=ff(cost_type=one)",
@@ -22,7 +22,7 @@ CONFIGS_STRIPS =  [ # TODO runtimes
            "      cost_type=one, "
            "      preferred=[hff])"]),
     # decoupled search: fork factorings
-    ((0, 10), ['fast-downward-decoupled', "--decoupling",
+    (10, ['fast-downward-decoupled', "--decoupling",
            "fork(search_type=sat, pruning=cost_frontier(irrelevance=TRANSITIONS), max_leaf_size=100000)",
            "--heuristic",
            "hff=ff(cost_type=one)",
@@ -31,7 +31,7 @@ CONFIGS_STRIPS =  [ # TODO runtimes
            "      cost_type=one, "
            "      preferred=[hff])"]),
     # decoupled search: general factorings
-    ((0, 10), ['fast-downward-decoupled', "--decoupling",
+    (120, ['fast-downward-decoupled', "--decoupling",
            "lp_general(search_type=sat, factoring_time_limit=30, memory_limit=7500, add_cg_sccs=true, strategy=mm_approx, min_flexibility=0.8)",
            "--heuristic",
            "hff=ff(cost_type=one)",
@@ -39,7 +39,7 @@ CONFIGS_STRIPS =  [ # TODO runtimes
            "lazy_greedy([hff],"
            "            preferred=[hff], cost_type=one)"]),
     # GBFS-SCL (hCFF)
-    ((10,10), ['fast-downward-conjunctions'] + _HCFF_UNIT_COST_DEFINITIONS + [
+    (150, ['fast-downward-conjunctions'] + _HCFF_UNIT_COST_DEFINITIONS + [
        '--search', 'lazy_greedy_rsl(hcff, preferred=[hcff], conjunctions_heuristic=hcff, novelty=hn, cost_type=1, subgoal_aggregation_method=COUNT, path_dependent_subgoals=true, lookahead_weight=1)'
     ]),
 ]
