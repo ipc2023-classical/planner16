@@ -5,15 +5,47 @@ Stage: build
 
 %files
     .
+    $IPC_THIRD_PARTY/cplex_studio2211.linux_x86_64.bin cplex.bin
 
 %post
     ## Install all necessary dependencies.
     dnf upgrade -y
-    dnf -y install cmake python3 make g++ boost-devel boost-static
+    dnf -y install cmake make g++ boost-devel boost-static pypy3 default-jre-headless zlib1g-dev
 
-    ## Build the planner
-    ./fast-downward-conjunctions/build.py ipc23
+    ## Clear local build directories.
+    rm -rf /fast-downward-conjunctions/builds
+    rm -rf /fast-downward-decoupled/builds
+
+    ## Build CPLEX
+    ./cplex.bin -DLICENSE_ACCEPTED=TRUE -i silent
+
+    export DOWNWARD_CPLEX_ROOT=/opt/ibm/ILOG/CPLEX_Studio2211/cplex/
+    export DOWNWARD_CPLEX_CONCERT64=/opt/ibm/ILOG/CPLEX_Studio2211/concert/
+
+    ##Build OSI
+    cd fast-downward-decoupled/third-party/Osi-0.108.6
+    export DOWNWARD_COIN_ROOT=/opt/coin/
+
+    ./configure CC="gcc"  CFLAGS="-pthread -Wno-long-long" \
+            CXX="g++" CXXFLAGS="-pthread -Wno-long-long" \
+            LDFLAGS="-L$DOWNWARD_CPLEX_ROOT/lib/x86-64_linux/static_pic" \
+            --without-lapack --enable-static=yes \
+            --prefix="$DOWNWARD_COIN_ROOT" \
+            --disable-bzlib  \
+            --with-cplex-incdir=$DOWNWARD_CPLEX_ROOT/include/ilcplex \
+            --with-cplex-lib="-lcplex -lm -ldl"
+
+    make
+    make install
+
+    cd ../../..
+
+    ## Build the planners
+    pypy3 fast-downward-conjunctions/build.py ipc23
+    pypy3 fast-downward-decoupled/build.py release64
+
     strip --strip-all fast-downward-conjunctions/builds/ipc23/bin/{downward,preprocess}
+    strip --strip-all fast-downward-decoupled/builds/release64/bin/{downward,preprocess}
 
 
 # Stage 2: Run the planner
@@ -27,10 +59,17 @@ Stage: run
     fast-downward-conjunctions/builds/ipc23/bin/
     fast-downward-conjunctions/driver
 
+    fast-downward-decoupled/fast-downward.py
+    fast-downward-decoupled/driver
+    fast-downward-decoupled/builds/release64/bin/
+    /opt/ibm/ILOG/CPLEX_Studio2211/cplex/
+    /opt/ibm/ILOG/CPLEX_Studio2211/concert/
+    /opt/coin/
+
 %post
     ## Install only dependencies for running the planner.
     dnf upgrade -y
-    dnf -y install python3
+    dnf -y install pypy3
     ## Remove unnecessary files to keep the image small.
     dnf clean all
 
