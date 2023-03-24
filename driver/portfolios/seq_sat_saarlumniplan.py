@@ -25,7 +25,7 @@ CONFIGS_STRIPS =  [
         'fast-downward-conjunctions',
         '--heuristic', 'hcff=cff(seed=-1, cache_estimates=false, cost_type=1)',
         '--heuristic', 'hn=novelty(cache_estimates=false)',
-        '--heuristic', 'tmp=novelty_linker(hcff, [hn])'
+        '--heuristic', 'tmp=novelty_linker(hcff, [hn])',
         '--search', 'lazy_greedy_rsl(hcff, preferred=[hcff], conjunctions_heuristic=hcff, novelty=hn, cost_type=1, subgoal_aggregation_method=COUNT, path_dependent_subgoals=true, lookahead_weight=1, bound=BOUND)'
     ]),
     # decoupled search: general factorings
