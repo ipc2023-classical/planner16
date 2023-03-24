@@ -44,6 +44,7 @@ CONFIGS_STRIPS =  [
     ]),
 ]
 
+_SHORT_TIMEOUT = 2
 _GBFS_SCL_TIMEOUT = 120
 _YAHSP_TIMEOUT = 90
 
@@ -51,7 +52,13 @@ CONFIGS_ADL = [(1, [
     'fast-downward-conjunctions',
     '--heuristic', 'hff=ff(cache_estimates=false, cost_type=1)',
     '--heuristic', 'hlm=lmcount(lm_rhw(reasonable_orders=true), cost_type=1)',
-    '--search', 'ipc18_iterated([{}, {}, {}], delete_after_phase_heuristics=[hff], delete_after_phase_phases=[1], continue_on_solve=false, continue_on_fail=true)'.format(
+    '--search', 'ipc18_iterated([{}, {}, {}, {}, {}, {}], continue_on_solve=false, continue_on_fail=true)'.format(
+        # GBFS-SCL (fast)
+        f'lazy_greedy_rsl_rainbow(hff, preferred=[hff], relaxed_plan_heuristic=hff, cost_type=1, subgoal_aggregation_method=COUNT, path_dependent_subgoals=true, lookahead_weight=1, max_time={_SHORT_TIMEOUT})',
+        # YAHSP (fast)
+        f'lazy_greedy_yahsp_rainbow(hff, preferred=hff, relaxed_plan_heuristic=hff, cost_type=1, max_time={_SHORT_TIMEOUT})',
+        # LAMA-first (fast)
+        f'lazy_greedy([hff, hlm], preferred=[hff], cost_type=1, max_time={_SHORT_TIMEOUT})',
         # GBFS-SCL
         f'lazy_greedy_rsl_rainbow(hff, preferred=[hff], relaxed_plan_heuristic=hff, cost_type=1, subgoal_aggregation_method=COUNT, path_dependent_subgoals=true, lookahead_weight=1, max_time={_GBFS_SCL_TIMEOUT})',
         # YAHSP
