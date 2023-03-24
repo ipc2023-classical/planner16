@@ -52,7 +52,7 @@ _YAHSP_TIMEOUT = 480
 
 CONFIGS_ADL = [(1, [
     'fast-downward-conjunctions',
-    '--heuristic', 'hff=ff(cache_estimates=false, cost_type=1)'
+    '--heuristic', 'hff=ff(cache_estimates=false, cost_type=1)',
     '--heuristic', 'hlm_normalcost=lmcount(lm_rhw(reasonable_orders=true))',
     '--heuristic', 'hff_normalcost=ff(cache_estimates=false, cost_type=PLUSONE)',
     '--search', 'ipc18_iterated([{}, {}, {}], delete_after_phase_heuristics=[hff], delete_after_phase_phases=[1], skip_if_solved=[1], continue_on_fail=true, bound=BOUND)'.format(
