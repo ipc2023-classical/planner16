@@ -44,7 +44,7 @@ CONFIGS_STRIPS =  [
         '--heuristic', 'hn_normalcost=novelty(cache_estimates=false)',
         '--heuristic', 'tmp_normalcost=novelty_linker(hcff_normalcost, [hn_normalcost])',
         '--search', 'ipc18_iterated([{}])'.format(
-            'lazy_iterated_weights_c([hcff_normalcost, hlm_normalcost], preferred=[hcff_normalcost], conjunctions_heuristic=hcff_normalcost, strategy=maintain_fixed_size_probabilistic(generate_initially=true, initial_removal_mode=UNTIL_BOUND, base_probability=0.02, target_growth_ratio=1.50), bound=BOUND)'
+            'lazy_iterated_weights_c([hcff_normalcost, hlm_normalcost], preferred=[hcff_normalcost], conjunctions_heuristic=hcff_normalcost, strategy=maintain_fixed_size_probabilistic(generate_initially=true, base_probability=0.02, target_growth_ratio=1.50), bound=BOUND)'
         )
     ]),
 ]
@@ -52,7 +52,7 @@ CONFIGS_STRIPS =  [
 _GBFS_SCL_TIMEOUT = 720
 _YAHSP_TIMEOUT = 480
 
-CONFIGS_ADL = [
+CONFIGS_ADL = [(1, [
     'fast-downward-conjunctions',
     '--heuristic', 'hff=ff(cache_estimates=false, cost_type=1)'
     '--heuristic', 'hlm_normalcost=lmcount(lm_rhw(reasonable_orders=true))',
@@ -65,4 +65,4 @@ CONFIGS_ADL = [
         # LAMA
         'lazy_iterated_weights_c([hff_normalcost, hlm_normalcost], preferred=[hff_normalcost], cached_heuristic=hff_normalcost)'
     )
-]
+])]
