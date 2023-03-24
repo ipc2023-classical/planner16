@@ -36,11 +36,11 @@ CONFIGS_STRIPS =  [
 
 CONFIGS_ADL = [
     # TODO GBFS-SCL (FF)
-    (720, ['fast-downward-conjunctions',  'TODO']),
-    # TODO YASP
-    (540, ['fast-downward-conjunctions', "TODO"]),
+    ((720,720), ['fast-downward-conjunctions',  'TODO']),
+    # TODO YAHSP
+    ((0, 540), ['fast-downward-conjunctions', "TODO"]),
     # TODO LAMA config
-    (540, ['fast-downward-conjunctions',  'TODO']),
+    ((1080, 540), ['fast-downward-conjunctions',  'TODO']),
 ]
 
 
