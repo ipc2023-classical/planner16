@@ -54,7 +54,7 @@ def adapt_args(args, search_cost_type, heuristic_cost_type, plan_manager):
                     "\"bound=BOUND\" in each search configuration. "
                     "See the FDSS portfolios for examples.")
             for name, value in [
-                    ("BOUND", g_bound),
+                    ("BOUND", g_bound - 1 if args[0] == "fast-downward-conjunctions" else g_bound),
                     ("S_COST_TYPE", search_cost_type)]:
                 search = search.replace(name, str(value))
             search = adapt_heuristic_cost_type(search, heuristic_cost_type)
