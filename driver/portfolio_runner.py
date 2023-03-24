@@ -78,19 +78,23 @@ def run_search(executable, args, sas_file, plan_manager, time, memory):
     return exitcode
 
 
-def compute_run_time(timeout, configs, pos):
+def compute_run_time(timeout, configs, pos, solution_found=False):
     remaining_time = timeout - util.get_elapsed_time()
     print("remaining time: {}".format(remaining_time))
-    relative_time = configs[pos][0]
-    remaining_relative_time = sum(config[0] for config in configs[pos:])
+    if (type(configs[pos][0]) is tuple):
+        relative_time = configs[pos][0][0] if solution_found else configs[pos][0][1]
+        remaining_relative_time = sum(config[0][0] if solution_found else config[0][1] for config in configs[pos:])
+    else:
+        relative_time = configs[pos][0]
+        remaining_relative_time = sum(config[0] for config in configs[pos:])
     print("config {}: relative time {}, remaining {}".format(
           pos, relative_time, remaining_relative_time))
     return limits.round_time_limit(remaining_time * relative_time / remaining_relative_time)
 
 
 def run_sat_config(configs, pos, search_cost_type, heuristic_cost_type,
-                   executable, sas_file, plan_manager, timeout, memory):
-    run_time = compute_run_time(timeout, configs, pos)
+                   executable, sas_file, plan_manager, timeout, memory, solution_found):
+    run_time = compute_run_time(timeout, configs, pos, solution_found)
     if run_time <= 0:
         return None
     _, args_template = configs[pos]
@@ -113,12 +117,24 @@ def run_sat(configs, executable, sas_file, plan_manager, final_config,
     heuristic_cost_type = "one"
     search_cost_type = "one"
     changed_cost_types = False
+    solution_found = False
     while configs:
         configs_next_round = []
-        for pos, (relative_time, args) in enumerate(configs):
+        for pos, config in enumerate(configs):
+            if (type(config[0]) is tuple):
+                relative_times = config[0]
+                if (solution_found):
+                    if (relative_times[0] == 0):
+                        continue
+                    relative_time = relative_times[0]
+                else:
+                    relative_time = relative_times[1]
+                args = config[1]
+            else:
+                (relative_time, args) = config
             exitcode = run_sat_config(
                 configs, pos, search_cost_type, heuristic_cost_type,
-                executable, sas_file, plan_manager, timeout, memory)
+                executable, sas_file, plan_manager, timeout, memory, solution_found)
             if exitcode is None:
                 return
 
@@ -127,6 +143,7 @@ def run_sat(configs, executable, sas_file, plan_manager, final_config,
                 return
 
             if exitcode == returncodes.SUCCESS:
+                solution_found = True
                 if plan_manager.abort_portfolio_after_first_plan():
                     return
                 configs_next_round.append((relative_time, args))
