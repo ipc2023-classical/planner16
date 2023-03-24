@@ -44,9 +44,8 @@ CONFIGS_STRIPS =  [ # TODO runtimes
     ]),
 ]
 
-_GBFS_SCL_TIMEOUT = 2
-_YAHSP_TIMEOUT = 2
-_LAMA_TIMEOUT = 90
+_GBFS_SCL_TIMEOUT = 120
+_YAHSP_TIMEOUT = 90
 
 CONFIGS_ADL = [(1, [
     'fast-downward-conjunctions',
@@ -58,8 +57,6 @@ CONFIGS_ADL = [(1, [
         # YAHSP
         f'lazy_greedy_yahsp_rainbow(hff, preferred=hff, relaxed_plan_heuristic=hff, cost_type=1, max_time={_YAHSP_TIMEOUT})',
         # LAMA-first
-        f'lazy_greedy([hff, hlm], preferred=[hff], cost_type=1, max_time={_LAMA_TIMEOUT})',
-        # GBFS-SCL
-        'lazy_greedy_rsl_rainbow(hff, preferred=[hff], relaxed_plan_heuristic=hff, cost_type=1, subgoal_aggregation_method=COUNT, path_dependent_subgoals=true, lookahead_weight=1)',
+        'lazy_greedy([hff, hlm], preferred=[hff], cost_type=1)'
     )
 ])]
