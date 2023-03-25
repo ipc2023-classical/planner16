@@ -29,9 +29,9 @@ def main():
     print(f"Plan file: {planfile}")
 
     if ("--alias" in config):
-        cmd = [sys.executable, str(REPO / planner / "fast-downward.py")] + config + ["output.sas"]
+        cmd = [sys.executable, str(REPO / planner / "fast-downward.py")] + ["--plan-file", planfile] + config + ["output.sas"]
     else:
-        cmd = [sys.executable, str(REPO / planner / "fast-downward.py"), "output.sas"] + config
+        cmd = [sys.executable, str(REPO / planner / "fast-downward.py"), "--plan-file", planfile, "output.sas"] + config
     p = subprocess.run(cmd)
     return p.returncode
 
