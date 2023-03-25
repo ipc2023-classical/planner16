@@ -54,7 +54,7 @@ def adapt_args(args, search_cost_type, heuristic_cost_type, plan_manager):
                     "\"bound=BOUND\" in each search configuration. "
                     "See the FDSS portfolios for examples.")
             for name, value in [
-                    ("BOUND", g_bound - 1 if args[0] == "fast-downward-conjunctions" else g_bound),
+                    ("BOUND", g_bound - 1 if args[0] == "fast-downward-conjunctions" and g_bound != "infinity" else g_bound),
                     ("S_COST_TYPE", search_cost_type)]:
                 search = search.replace(name, str(value))
             search = adapt_heuristic_cost_type(search, heuristic_cost_type)
@@ -146,7 +146,11 @@ def run_sat(configs, executable, sas_file, plan_manager, final_config,
                 solution_found = True
                 if plan_manager.abort_portfolio_after_first_plan():
                     return
-                configs_next_round.append((relative_time, args))
+                if (type(config[0]) is tuple):
+                    if (relative_times[0] != 0):
+                        configs_next_round.append((relative_times[0], args))
+                else:
+                    configs_next_round.append((relative_time, args))
                 if (not changed_cost_types and can_change_cost_type(args) and
                     plan_manager.get_problem_type() == "general cost"):
                     print("Switch to real costs and repeat last run.")
