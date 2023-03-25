@@ -96,7 +96,7 @@ Stage: run
 ## Define meta data
 %labels
 Name        DiSCO
-Description Satisficing planner based on Decoupled Search and COnjunctions.
+Description Agile planner based on Decoupled Search and COnjunctions.
 Authors     Maximilian Fickert <fickert@cs.uni-saarland.de>, Daniel Gnad <daniel.gnad@liu.se>
 License     GPL 3
 Tracks      agile
