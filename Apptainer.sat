@@ -97,8 +97,8 @@ Stage: run
 
 ## Define meta data
 %labels
-Name        SaarlumniPlan-TODO
-Description Satisficing planner based on conjunctions and decoupled search.
+Name        DiSCO
+Description Satisficing planner based on Decoupled Search and COnjunctions.
 Authors     Maximilian Fickert <fickert@cs.uni-saarland.de>, Daniel Gnad <daniel.gnad@liu.se>
 License     GPL 3
 Tracks      satisficing
