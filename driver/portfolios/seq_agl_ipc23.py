@@ -9,11 +9,11 @@ _HCFF_UNIT_COST_DEFINITIONS = [
 
 CONFIGS_STRIPS =  [
     # GBFS-SCL (hCFF)
-    (2, ['fast-downward-conjunctions'] + _HCFF_UNIT_COST_DEFINITIONS + [
+    (3, ['fast-downward-conjunctions'] + _HCFF_UNIT_COST_DEFINITIONS + [
        '--search', 'lazy_greedy_rsl(hcff, preferred=[hcff], conjunctions_heuristic=hcff, novelty=hn, cost_type=1, subgoal_aggregation_method=SUM, path_dependent_subgoals=false, lookahead_weight=infinity)'
     ]),
     # decoupled search: inverted-fork factorings
-    (2, ['fast-downward-decoupled', "--decoupling",
+    (3, ['fast-downward-decoupled', "--decoupling",
            "ifork(search_type=sat, max_leaf_size=100000)",
            "--heuristic",
            "hff=ff(cost_type=one)",
@@ -22,7 +22,7 @@ CONFIGS_STRIPS =  [
            "      cost_type=one, "
            "      preferred=[hff])"]),
     # decoupled search: fork factorings
-    (2, ['fast-downward-decoupled', "--decoupling",
+    (3, ['fast-downward-decoupled', "--decoupling",
            "fork(search_type=sat, pruning=cost_frontier(irrelevance=TRANSITIONS), max_leaf_size=100000)",
            "--heuristic",
            "hff=ff(cost_type=one)",
@@ -31,7 +31,7 @@ CONFIGS_STRIPS =  [
            "      cost_type=one, "
            "      preferred=[hff])"]),
     # RHC-SC (hCFF)
-    (2, ['fast-downward-conjunctions'] + _HCFF_UNIT_COST_DEFINITIONS + [
+    (3, ['fast-downward-conjunctions'] + _HCFF_UNIT_COST_DEFINITIONS + [
        '--search', 'ehc_cnsg(hcff, novelty=hn, cost_type=1, always_reevaluate=true, subgoal_aggregation_method=SUM, path_dependent_subgoals=false, w=infinity, seed=-1, restart_in_dead_ends=true, learning_stagnation_threshold=1)'
     ]),
     # GBFS-SCL (hCFF)
