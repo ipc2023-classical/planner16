@@ -31,8 +31,12 @@ CONFIGS_STRIPS =  [
            "      cost_type=one, "
            "      preferred=[hff])"]),
     # RHC-SC (hCFF)
-    (120, ['fast-downward-conjunctions'] + _HCFF_UNIT_COST_DEFINITIONS + [
+    (2, ['fast-downward-conjunctions'] + _HCFF_UNIT_COST_DEFINITIONS + [
        '--search', 'ehc_cnsg(hcff, novelty=hn, cost_type=1, always_reevaluate=true, subgoal_aggregation_method=COUNT, path_dependent_subgoals=true, w=1, seed=-1, restart_in_dead_ends=true, learning_stagnation_threshold=1)'
+    ]),
+    # GBFS-SCL (hCFF)
+    (90, ['fast-downward-conjunctions'] + _HCFF_UNIT_COST_DEFINITIONS + [
+       '--search', 'lazy_greedy_rsl(hcff, preferred=[hcff], conjunctions_heuristic=hcff, novelty=hn, cost_type=1, subgoal_aggregation_method=COUNT, path_dependent_subgoals=true, lookahead_weight=1)'
     ]),
     # decoupled search: general factorings
     (120, ['fast-downward-decoupled', "--decoupling",
@@ -42,9 +46,9 @@ CONFIGS_STRIPS =  [
            "--search",
            "lazy_greedy([hff],"
            "            preferred=[hff], cost_type=one)"]),
-    # GBFS-SCL (hCFF)
-    (54, ['fast-downward-conjunctions'] + _HCFF_UNIT_COST_DEFINITIONS + [
-       '--search', 'lazy_greedy_rsl(hcff, preferred=[hcff], conjunctions_heuristic=hcff, novelty=hn, cost_type=1, subgoal_aggregation_method=COUNT, path_dependent_subgoals=true, lookahead_weight=1)'
+    # RHC-SC (hCFF)
+    (82, ['fast-downward-conjunctions'] + _HCFF_UNIT_COST_DEFINITIONS + [
+       '--search', 'ehc_cnsg(hcff, novelty=hn, cost_type=1, always_reevaluate=true, subgoal_aggregation_method=COUNT, path_dependent_subgoals=true, w=1, seed=-1, restart_in_dead_ends=true, learning_stagnation_threshold=1)'
     ]),
 ]
 
