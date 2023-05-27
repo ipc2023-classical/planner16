@@ -1,5 +1,6 @@
 SAS_FILE = "output.sas"
 OPTIMAL = False
+REPEAT_CONFIGS = False
 
 CONFIGS_STRIPS =  [
     # decoupled search: inverted-fork factorings
