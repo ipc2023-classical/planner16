@@ -110,7 +110,7 @@ def run_sat_config(configs, pos, search_cost_type, heuristic_cost_type,
 
 
 def run_sat(configs, executable, sas_file, plan_manager, final_config,
-            final_config_builder, timeout, memory):
+            final_config_builder, repeat_configs, timeout, memory):
     # If the configuration contains S_COST_TYPE or H_COST_TRANSFORM and the task
     # has non-unit costs, we start by treating all costs as one. When we find
     # a solution, we rerun the successful config with real costs.
@@ -146,11 +146,12 @@ def run_sat(configs, executable, sas_file, plan_manager, final_config,
                 solution_found = True
                 if plan_manager.abort_portfolio_after_first_plan():
                     return
-                if (type(config[0]) is tuple):
-                    if (relative_times[0] != 0):
-                        configs_next_round.append((relative_times[0], args))
-                else:
-                    configs_next_round.append((relative_time, args))
+                if repeat_configs:
+                    if (type(config[0]) is tuple):
+                        if (relative_times[0] != 0):
+                            configs_next_round.append((relative_times[0], args))
+                    else:
+                        configs_next_round.append((relative_time, args))
                 if (not changed_cost_types and can_change_cost_type(args) and
                     plan_manager.get_problem_type() == "general cost"):
                     print("Switch to real costs and repeat last run.")
@@ -238,6 +239,7 @@ def run(portfolio, executable, sas_file, plan_manager, time, memory, translate_e
     optimal = attributes["OPTIMAL"]
     final_config = attributes.get("FINAL_CONFIG")
     final_config_builder = attributes.get("FINAL_CONFIG_BUILDER")
+    repeat_configs = attributes.get("REPEAT_CONFIGS", True)
     if "TIMEOUT" in attributes:
         returncodes.exit_with_driver_input_error(
             "The TIMEOUT attribute in portfolios has been removed. "
@@ -259,5 +261,5 @@ def run(portfolio, executable, sas_file, plan_manager, time, memory, translate_e
     else:
         exitcodes = run_sat(
             configs, executable, sas_file, plan_manager, final_config,
-            final_config_builder, timeout, memory)
+            final_config_builder, repeat_configs, timeout, memory)
     return returncodes.generate_portfolio_exitcode(list(exitcodes))
