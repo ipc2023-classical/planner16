@@ -15,6 +15,7 @@ the process is started.
 
 __all__ = ["run"]
 
+from pathlib import Path
 import subprocess
 import sys
 
@@ -25,6 +26,7 @@ from . import util
 
 
 DEFAULT_TIMEOUT = 1800
+REPO = Path(__file__).resolve().parent.parent
 
 
 def adapt_heuristic_cost_type(arg, cost_type):
@@ -63,8 +65,14 @@ def adapt_args(args, search_cost_type, heuristic_cost_type, plan_manager):
 
 
 def run_search(executable, args, sas_file, plan_manager, time, memory):
-    complete_args = [sys.executable, executable] + args + [
-        "--internal-plan-file", plan_manager.get_plan_prefix()]
+    planner, *config = args
+    if planner == "fast-downward-conjunctions":
+        executable = REPO / "fast-downward-conjunctions" / "builds" / "ipc23" / "bin" / "downward"
+    elif planner == "fast-downward-decoupled":
+        executable = REPO / "fast-downward-decoupled" / "builds" / "release64" / "bin" / "downward"
+    else:
+        raise SystemExit(f"Unexpected planner argument: {planner}")
+    complete_args = [str(executable)] + config + ["--internal-plan-file", plan_manager.get_plan_prefix()]
     print("args: %s" % complete_args)
 
     try:
