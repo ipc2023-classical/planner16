@@ -87,7 +87,7 @@ Stage: run
     PLANFILE="$3"
 
     pypy3 /plan.py \
-        --overall-memory-limit 8000M \
+        --overall-memory-limit 7000M \
         --overall-time-limit 5m \
         --alias seq-agl-ipc23 \
         --plan-file "$PLANFILE" \
